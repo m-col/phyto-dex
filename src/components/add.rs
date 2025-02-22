@@ -9,7 +9,9 @@ pub fn AddSpecimen() -> Element {
     let mut form_name = use_signal(|| String::new());
     let mut form_species = use_signal(|| 0);
 
-    //let available_species = use_resource(list_species).suspend()?;
+    let available_species = use_server_future(list_species)?()
+        .unwrap()
+        .unwrap_or_default();
 
     rsx! {
         div {
@@ -21,18 +23,18 @@ pub fn AddSpecimen() -> Element {
                 oninput: move |event| form_name.set(event.value())
             }
             select {
-                //onchange: move |event| form_species.set(event.value().parse::<i32>().unwrap()),
+                onchange: move |event| form_species.set(event.value().parse::<i32>().unwrap()),
                 option {
                     value: 0,
                     "Select a species..."
                 }
-                //for (key, name) in available_species().unwrap() {
-                //    option {
-                //        key: key,
-                //        value: key,
-                //        "{name}"
-                //    }
-                //}
+                for (key, name) in available_species {
+                    option {
+                        key: key,
+                        value: key,
+                        "{name}"
+                    }
+                }
             }
             button {
                 onclick: move |_| async move {
