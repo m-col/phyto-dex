@@ -6,23 +6,45 @@ thread_local! {
     static DB: rusqlite::Connection = {
         let conn = rusqlite::Connection::open("storage.db").expect("Failed to open database");
 
-        conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS specimen (
+        match conn.execute_batch("
+            CREATE TABLE IF NOT EXISTS family (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS genus (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                family INTEGER,
+                FOREIGN KEY (family) REFERENCES family (id)
+            );
+            CREATE TABLE IF NOT EXISTS species (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                genus INTEGER,
+                FOREIGN KEY (genus) REFERENCES genus(id)
+            );
+            CREATE TABLE IF NOT EXISTS specimen (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 species INTEGER,
                 FOREIGN KEY (species) REFERENCES species(id)
             );
-            CREATE TABLE IF NOT EXISTS species (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
-            );
-            INSERT INTO species (name) VALUES ('Monstera deliciosa');
-            INSERT INTO species (name) VALUES ('Monstera adansonii');
-            ",
-        ).unwrap();
 
-        conn
+            INSERT INTO family (name) VALUES ('Araceae');
+            INSERT INTO genus (name, family)
+                VALUES ('Monstera', (SELECT id FROM family WHERE name = 'Araceae'));
+            INSERT INTO species (name, genus)
+                VALUES ('Monstera glaucescens', (SELECT id FROM genus WHERE name = 'Monstera'));
+            INSERT INTO species (name, genus)
+                VALUES ('Monstera punctulata', (SELECT id FROM genus WHERE name = 'Monstera'));
+            ",
+        ) {
+            Ok(_) => conn,
+            Err(e) => {
+                warn!("Failed to create database: {:?}", e);
+                panic!("Failed to create database: {:?}", e);
+            }
+        }
     };
 }
 
