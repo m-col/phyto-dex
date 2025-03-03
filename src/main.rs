@@ -5,6 +5,7 @@ use views::{Blog, Home};
 
 mod backend;
 mod components;
+mod data;
 mod views;
 
 #[derive(Debug, Clone, Routable, PartialEq)]

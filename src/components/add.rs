@@ -1,6 +1,5 @@
 use dioxus::logger::tracing::warn;
 use dioxus::prelude::*;
-use std::io::Write;
 
 use crate::backend::{add_specimen, list_species};
 
@@ -39,7 +38,7 @@ pub fn AddSpecimen() -> Element {
             button {
                 onclick: move |_| async move {
                     warn!("Add specimen");
-                    add_specimen(form_name(), form_species()).await;
+                    let _ = add_specimen(form_name(), form_species()).await;
                 },
                 "Add"
             }

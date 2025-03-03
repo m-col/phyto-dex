@@ -1,5 +1,6 @@
-use dioxus::logger::tracing::warn;
 use dioxus::prelude::*;
+
+use crate::data::*;
 
 #[cfg(feature = "server")]
 thread_local! {
@@ -76,11 +77,17 @@ pub async fn list_species() -> Result<Vec<(i32, String)>, ServerFnError> {
 }
 
 #[server]
-pub async fn list_specimens() -> Result<Vec<(i32, String, i32)>, ServerFnError> {
+pub async fn list_specimens() -> Result<Vec<Specimen>, ServerFnError> {
     let specimens = DB.with(|f| {
         f.prepare("SELECT id, name, species FROM specimen")
             .unwrap()
-            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+            .query_map([], |row| {
+                Ok(Specimen {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    species: row.get(2)?,
+                })
+            })
             .unwrap()
             .map(|r| r.unwrap())
             .collect()
