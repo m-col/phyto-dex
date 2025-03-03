@@ -64,11 +64,13 @@ pub async fn add_specimen(name: String, species: i32) -> Result<(), ServerFnErro
 }
 
 #[server]
-pub async fn list_species() -> Result<Vec<(i32, String)>, ServerFnError> {
+pub async fn list_species() -> Result<Vec<Species>, ServerFnError> {
     let species = DB.with(|f| {
-        f.prepare("SELECT id, name FROM species")
+        f.prepare("SELECT id, name, genus FROM species")
             .unwrap()
-            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+            .query_map([], |row| Ok((
+                    Species { id: row.get(0)?, name: row.get(1)?, genus: row.get(2)? }
+            )))
             .unwrap()
             .map(|r| r.unwrap())
             .collect()
@@ -86,7 +88,7 @@ pub async fn get_collection() -> Result<Vec<Specimen>, ServerFnError> {
                 Ok(Specimen {
                     id: row.get(0)?,
                     name: row.get(1)?,
-                    species: row.get(2)?,
+                    species_id: row.get(2)?,
                 })
             })
             .unwrap()

@@ -22,8 +22,8 @@ pub fn AddSpecimen() -> Element {
             }
             select { onchange: move |event| form_species.set(event.value().parse::<i32>().unwrap()),
                 option { value: 0, "Select a species..." }
-                for (key , name) in available_species {
-                    option { key, value: key, "{name}" }
+                for species in available_species {
+                    option { key: species.id, value: species.id, "{species.name}" }
                 }
             }
             button {
@@ -33,7 +33,6 @@ pub fn AddSpecimen() -> Element {
                 },
                 "Add"
             }
-        
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::backend::get_collection;
+use crate::backend::{get_collection, list_species};
 use crate::components::{AddSpecimen, Collection};
 use crate::data::UserData;
 use dioxus::prelude::*;
@@ -10,10 +10,14 @@ pub fn Home() -> Element {
         .unwrap()
         .unwrap_or_default();
 
+    let species = use_server_future(list_species)?
+        .unwrap()
+        .unwrap_or_default();
+
     use_context_provider(|| {
         Signal::new(UserData {
             collection: collection,
-            species: HashMap::new(),
+            species: species.into_iter().map(|s| (s.id, s)).collect(),
         })
     });
 
