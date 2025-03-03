@@ -11,23 +11,26 @@ thread_local! {
         match conn.execute_batch("
             CREATE TABLE IF NOT EXISTS family (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
+                name TEXT NOT NULL,
+                wfo_id TEXT NOT NULL UNIQUE
             );
             CREATE TABLE IF NOT EXISTS genus (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
+                wfo_id TEXT NOT NULL UNIQUE,
                 family INTEGER,
                 FOREIGN KEY (family) REFERENCES family (id)
             );
             CREATE TABLE IF NOT EXISTS species (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
+                wfo_id TEXT NOT NULL UNIQUE,
                 genus INTEGER,
                 FOREIGN KEY (genus) REFERENCES genus(id)
             );
             CREATE TABLE IF NOT EXISTS specimen (
                 id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
+                name TEXT NOT NULL UNIQUE,
                 species INTEGER,
                 FOREIGN KEY (species) REFERENCES species(id)
             );
