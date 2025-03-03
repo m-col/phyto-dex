@@ -13,26 +13,17 @@ pub fn AddSpecimen() -> Element {
         .unwrap_or_default();
 
     rsx! {
-        div {
-            id: "add-specimen",
+        div { id: "add-specimen",
             h4 { "Add a new specimen" }
             input {
                 placeholder: "Enter name...",
                 value: "{form_name}",
-                oninput: move |event| form_name.set(event.value())
+                oninput: move |event| form_name.set(event.value()),
             }
-            select {
-                onchange: move |event| form_species.set(event.value().parse::<i32>().unwrap()),
-                option {
-                    value: 0,
-                    "Select a species..."
-                }
-                for (key, name) in available_species {
-                    option {
-                        key: key,
-                        value: key,
-                        "{name}"
-                    }
+            select { onchange: move |event| form_species.set(event.value().parse::<i32>().unwrap()),
+                option { value: 0, "Select a species..." }
+                for (key , name) in available_species {
+                    option { key, value: key, "{name}" }
                 }
             }
             button {
@@ -42,7 +33,7 @@ pub fn AddSpecimen() -> Element {
                 },
                 "Add"
             }
-
+        
         }
     }
 }

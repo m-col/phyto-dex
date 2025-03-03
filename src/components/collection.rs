@@ -1,23 +1,18 @@
 use dioxus::prelude::*;
 
-use crate::backend::list_specimens;
+use crate::backend::get_collection;
+use crate::data::UserData;
 
 #[component]
 pub fn Collection() -> Element {
-    let specimens = use_server_future(list_specimens)?
-        .unwrap()
-        .unwrap_or_default();
+    let user_data: Signal<UserData> = use_context();
 
     rsx! {
-        div {
-            id: "collection",
+        div { id: "collection",
             h4 { "My Collection" }
             ul {
-                for specimen in specimens {
-                    li {
-                        key: specimen.id,
-                        "{specimen.name} - ({specimen.species:6})"
-                    }
+                for specimen in user_data().collection {
+                    li { key: specimen.id, "{specimen.name} - ({specimen.species:6})" }
                 }
             }
         }

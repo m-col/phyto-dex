@@ -59,7 +59,7 @@ pub async fn add_specimen(name: String, species: i32) -> Result<(), ServerFnErro
         )
     })?;
     warn!("Species: {:?}", list_species().await);
-    warn!("Spcimens: {:?}", list_specimens().await);
+    warn!("Collection: {:?}", get_collection().await);
     Ok(())
 }
 
@@ -78,7 +78,7 @@ pub async fn list_species() -> Result<Vec<(i32, String)>, ServerFnError> {
 }
 
 #[server]
-pub async fn list_specimens() -> Result<Vec<Specimen>, ServerFnError> {
+pub async fn get_collection() -> Result<Vec<Specimen>, ServerFnError> {
     let specimens = DB.with(|f| {
         f.prepare("SELECT id, name, species FROM specimen")
             .unwrap()

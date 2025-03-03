@@ -19,6 +19,6 @@ pub struct Specimen {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct UserData {
-    collection: Vec<Specimen>,
-    species: HashMap<SpeciesId, Species>,
+    pub collection: Vec<Specimen>,
+    pub species: HashMap<SpeciesId, Species>,
 }
