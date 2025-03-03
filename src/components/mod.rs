@@ -5,4 +5,4 @@ mod add;
 pub use add::AddSpecimen;
 
 mod collection;
-pub use collection::Collection;
+pub use collection::CollectionView;

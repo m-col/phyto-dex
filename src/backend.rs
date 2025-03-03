@@ -51,7 +51,7 @@ thread_local! {
 }
 
 #[server]
-pub async fn add_specimen(name: String, species: i32) -> Result<(), ServerFnError> {
+pub async fn add_specimen(name: String, species: SpeciesId) -> Result<(), ServerFnError> {
     DB.with(|f| {
         f.execute(
             "INSERT INTO specimen (name, species) VALUES (?1, ?2)",
@@ -68,9 +68,13 @@ pub async fn list_species() -> Result<Vec<Species>, ServerFnError> {
     let species = DB.with(|f| {
         f.prepare("SELECT id, name, genus FROM species")
             .unwrap()
-            .query_map([], |row| Ok((
-                    Species { id: row.get(0)?, name: row.get(1)?, genus: row.get(2)? }
-            )))
+            .query_map([], |row| {
+                Ok(Species {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    genus: row.get(2)?,
+                })
+            })
             .unwrap()
             .map(|r| r.unwrap())
             .collect()
@@ -80,7 +84,7 @@ pub async fn list_species() -> Result<Vec<Species>, ServerFnError> {
 }
 
 #[server]
-pub async fn get_collection() -> Result<Vec<Specimen>, ServerFnError> {
+pub async fn get_collection() -> Result<Collection, ServerFnError> {
     let specimens = DB.with(|f| {
         f.prepare("SELECT id, name, species FROM specimen")
             .unwrap()
@@ -96,5 +100,33 @@ pub async fn get_collection() -> Result<Vec<Specimen>, ServerFnError> {
             .collect()
     });
 
-    Ok(specimens)
+    let species = DB.with(|f| {
+        f.prepare(
+            "
+            SELECT species.id, species.name, species.genus
+            FROM species
+            INNER JOIN specimen ON species.id = specimen.species
+        ",
+        )
+        .unwrap()
+        .query_map([], |row| {
+            let species_id = row.get(0)?;
+            Ok((
+                species_id,
+                Species {
+                    id: species_id,
+                    name: row.get(1)?,
+                    genus: row.get(2)?,
+                },
+            ))
+        })
+        .unwrap()
+        .map(|r| r.unwrap())
+        .collect()
+    });
+
+    Ok(Collection {
+        specimens: specimens,
+        species: species,
+    })
 }

@@ -1,24 +1,26 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-type SpeciesId = i32;
+pub type SpeciesId = i32;
+pub type GenusId = i32;
+pub type SpecimenId = i32;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Species {
     pub id: SpeciesId,
     pub name: String,
-    pub genus: i32,
+    pub genus: GenusId,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Specimen {
-    pub id: i32,
+    pub id: SpecimenId,
     pub name: String,
     pub species_id: SpeciesId,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct UserData {
-    pub collection: Vec<Specimen>,
+pub struct Collection {
+    pub specimens: Vec<Specimen>,
     pub species: HashMap<SpeciesId, Species>,
 }

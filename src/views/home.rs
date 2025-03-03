@@ -1,28 +1,16 @@
-use crate::backend::{get_collection, list_species};
-use crate::components::{AddSpecimen, Collection};
-use crate::data::UserData;
+use crate::backend::get_collection;
+use crate::components::{AddSpecimen, CollectionView};
+use crate::data::Collection;
 use dioxus::prelude::*;
-use std::collections::HashMap;
 
 #[component]
 pub fn Home() -> Element {
-    let collection = use_server_future(get_collection)?
-        .unwrap()
-        .unwrap_or_default();
+    let collection: Collection = use_server_future(get_collection)?.unwrap().unwrap();
 
-    let species = use_server_future(list_species)?
-        .unwrap()
-        .unwrap_or_default();
-
-    use_context_provider(|| {
-        Signal::new(UserData {
-            collection: collection,
-            species: species.into_iter().map(|s| (s.id, s)).collect(),
-        })
-    });
+    use_context_provider(|| Signal::new(collection));
 
     rsx! {
-        Collection {}
+        CollectionView {}
         AddSpecimen {}
     }
 }
