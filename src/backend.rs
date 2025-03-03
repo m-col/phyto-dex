@@ -32,13 +32,6 @@ thread_local! {
                 FOREIGN KEY (species) REFERENCES species(id)
             );
 
-            INSERT INTO family (name) VALUES ('Araceae');
-            INSERT INTO genus (name, family)
-                VALUES ('Monstera', (SELECT id FROM family WHERE name = 'Araceae'));
-            INSERT INTO species (name, genus)
-                VALUES ('Monstera glaucescens', (SELECT id FROM genus WHERE name = 'Monstera'));
-            INSERT INTO species (name, genus)
-                VALUES ('Monstera punctulata', (SELECT id FROM genus WHERE name = 'Monstera'));
             ",
         ) {
             Ok(_) => conn,
