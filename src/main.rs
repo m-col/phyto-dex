@@ -17,7 +17,7 @@ fn main() {
 
 #[component]
 fn App() -> Element {
-    let collection: Collection = use_server_future(get_collection)?.unwrap().unwrap();
+    let mut collection: Collection = use_server_future(get_collection)?.unwrap().unwrap();
     use_context_provider(|| Signal::new(collection));
 
     rsx! {

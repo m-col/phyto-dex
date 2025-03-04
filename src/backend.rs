@@ -132,3 +132,21 @@ pub async fn get_collection() -> Result<Collection, ServerFnError> {
         species: species,
     })
 }
+
+#[server]
+pub async fn get_species_by_id(species_id: SpeciesId) -> Result<Species, ServerFnError> {
+    let species = DB.with(|f| {
+        f.prepare("SELECT name, genus FROM species WHERE id = ?")
+            .unwrap()
+            .query_row([species_id], |row| {
+                Ok(Species {
+                    id: species_id,
+                    name: row.get(0)?,
+                    genus: row.get(1)?,
+                })
+            })
+            .unwrap()
+    });
+
+    Ok(species)
+}

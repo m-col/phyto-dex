@@ -1,7 +1,8 @@
 use dioxus::logger::tracing::warn;
 use dioxus::prelude::*;
 
-use crate::backend::{add_specimen, list_species};
+use crate::backend::{add_specimen, list_species, get_species_by_id};
+use crate::data::*;
 
 #[component]
 pub fn AddSpecimen() -> Element {
@@ -11,6 +12,8 @@ pub fn AddSpecimen() -> Element {
     let available_species = use_server_future(list_species)?()
         .unwrap()
         .unwrap_or_default();
+
+    let mut collection: Signal<Collection> = use_context();
 
     rsx! {
         div { id: "add-specimen",
@@ -29,8 +32,23 @@ pub fn AddSpecimen() -> Element {
             button {
                 onclick: move |_| async move {
                     warn!("Add specimen");
-                    match add_specimen(form_name(), form_species()).await {
-                        Ok(specimen_id) => warn!(specimen_id),
+                    let name = form_name();
+                    let species_id = form_species();
+                    match add_specimen(name.clone(), species_id).await {
+                        Ok(specimen_id) => {
+                            let mut collection = &mut collection.write();
+                            collection
+                                .specimens
+                                .push(Specimen {
+                                    id: specimen_id,
+                                    name: name,
+                                    species_id: species_id,
+                                });
+                            if !collection.species.contains_key(&species_id) {
+                                let species = get_species_by_id(species_id).await.unwrap();
+                                collection.species.insert(species_id, species);
+                            }
+                        }
                         Err(err) => warn!("Error: {}", err),
                     }
                 },
