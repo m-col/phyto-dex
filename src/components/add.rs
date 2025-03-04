@@ -29,7 +29,10 @@ pub fn AddSpecimen() -> Element {
             button {
                 onclick: move |_| async move {
                     warn!("Add specimen");
-                    let _ = add_specimen(form_name(), form_species()).await;
+                    match add_specimen(form_name(), form_species()).await {
+                        Ok(specimen_id) => warn!(specimen_id),
+                        Err(err) => warn!("Error: {}", err),
+                    }
                 },
                 "Add"
             }

@@ -47,16 +47,22 @@ thread_local! {
 }
 
 #[server]
-pub async fn add_specimen(name: String, species: SpeciesId) -> Result<(), ServerFnError> {
+pub async fn add_specimen(name: String, species: SpeciesId) -> Result<SpecimenId, ServerFnError> {
     DB.with(|f| {
         f.execute(
             "INSERT INTO specimen (name, species) VALUES (?1, ?2)",
             (&name, species),
         )
     })?;
-    warn!("Species: {:?}", list_species().await);
-    warn!("Collection: {:?}", get_collection().await);
-    Ok(())
+
+    let specimen_id = DB.with(|f| {
+        f.prepare("SELECT id FROM specimen WHERE name = ?")
+            .unwrap()
+            .query_row([&name], |row| row.get(0))
+            .unwrap()
+    });
+
+    Ok(specimen_id)
 }
 
 #[server]
