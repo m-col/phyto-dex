@@ -1,22 +1,11 @@
+use crate::backend::get_collection;
+use crate::components::{AddSpecimen, CollectionView};
+use crate::data::Collection;
 use dioxus::prelude::*;
-
-use components::Navbar;
-use views::{Blog, Home};
 
 mod backend;
 mod components;
 mod data;
-mod views;
-
-#[derive(Debug, Clone, Routable, PartialEq)]
-#[rustfmt::skip]
-enum Route {
-    #[layout(Navbar)]
-    #[route("/")]
-    Home {},
-    #[route("/blog/:id")]
-    Blog { id: i32 },
-}
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
@@ -28,11 +17,15 @@ fn main() {
 
 #[component]
 fn App() -> Element {
+    let collection: Collection = use_server_future(get_collection)?.unwrap().unwrap();
+    use_context_provider(|| Signal::new(collection));
+
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
 
-        Router::<Route> {}
+        CollectionView {}
+        AddSpecimen {}
     }
 }
